@@ -25,9 +25,38 @@ class medRxivExtractor:
             
         assert len(hrefs) == len(titles),'Number of Article Titles and Articles Link Do Not Match'
         
-        return hrefs
+        mini_dict = {}
+        mini_dict['title']=titles
+        mini_dict['href']=hrefs
+        
+        return mini_dict
     
+    def access_paper(self, input_dict):
+        
+        abstracts = []
+        
+        for ix,href in enumerate(input_dict['href']):
+            res = requests.get(href)
+            content = res.content
+            soup = BeautifulSoup(content)
+            
+            for ix,i in enumerate(soup.find_all('meta')):
+                if len(i['content'])>2000:
+                    abstracts.append(i["content"].partition('### Competing Interest Statement')[0])
+                    
+        abstracts = list(set(abstracts))
+        
+        try:
+            assert len(abstracts) == len(input_dict['href']),f'Warning: # Abstracts != # Links {len(abstracts),len(input_dict['href'])}'
+        except Exception as e:
+            print(e)
+        
+        return abstracts
+            
+            
     def __call__(self):
         return self.extract_article_text()
+            
+        
             
         
