@@ -55,8 +55,9 @@ class medRxivExtractor:
             
             
     def __call__(self):
-        return self.extract_article_text()
+        mini_dict = self.extract_article_text()
+        abstracts = self.access_paper(mini_dict)
             
-        
+        return abstracts
             
         
