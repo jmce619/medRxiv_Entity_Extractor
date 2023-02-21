@@ -1,4 +1,3 @@
-import pandas as pd
 from bs4 import BeautifulSoup
 import requests
 
@@ -19,7 +18,6 @@ class medRxivExtractor:
         
         hrefs = []
         for i in soup.find_all('span', {"class": "highwire-cite-metadata-doi highwire-cite-metadata"}):
-            print(i.text)
             clean_ref = i.text.partition('doi: ')[2]
             hrefs.append(clean_ref.strip()) 
             
@@ -47,7 +45,7 @@ class medRxivExtractor:
         abstracts = list(set(abstracts))
         
         try:
-            assert len(abstracts) == len(input_dict['href']),f'Warning: # Abstracts != # Links {len(abstracts),len(input_dict['href'])}'
+            assert len(abstracts) == len(input_dict['href']),f"Warning: # Abstracts != # Links {len(abstracts),len(input_dict['href'])}"
         except Exception as e:
             print(e)
         
@@ -59,5 +57,4 @@ class medRxivExtractor:
         abstracts = self.access_paper(mini_dict)
             
         return abstracts
-            
         
