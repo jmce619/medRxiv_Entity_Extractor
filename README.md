@@ -7,4 +7,4 @@ Since the nature of the publicates varies in language structure and methodology 
 
 ## General Structure of medRxiv paper
 
-![Screenshot](./img/artcle1.png)
+![Screenshot](./img/article1.png)
