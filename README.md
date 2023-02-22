@@ -15,9 +15,9 @@ We are also going to extract tables from the full paper pdfs via a couple method
 ### Structure of medRxiv archive listings page
 
 <p float="left">
-  <img src="./img/main1.png" width="300" />
-  <img src="./img/main2.png" width="300" /> 
-  <img src="./img/main3.png" width="300" />
+  <img src="./img/main1.png" width="250" />
+  <img src="./img/main2.png" width="250" /> 
+  <img src="./img/main3.png" width="250" />
 </p>
 
 ```
@@ -58,7 +58,7 @@ We are also going to extract tables from the full paper pdfs via a couple method
 ### Example tables from papers
 
 <p float="left">
-  <img src="./img/table1.png" width="300" />
-  <img src="./img/table2.png" width="300" /> 
-  <img src="./img/table3.png" width="300" />
+  <img src="./img/table1.png" width="250" />
+  <img src="./img/table2.png" width="250" /> 
+  <img src="./img/table3.png" width="250" />
 </p>
