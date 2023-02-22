@@ -1,5 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
+from pypdf import PdfReader
+import io
+
 
 class medRxivExtractor:
     def __init__(self,data_folder: str = './data/'):
@@ -24,15 +27,15 @@ class medRxivExtractor:
         assert len(hrefs) == len(titles),'Number of Article Titles and Articles Link Do Not Match'
         
         mini_dict = {}
-        mini_dict['title']=titles
-        mini_dict['href']=hrefs
+        mini_dict['title'] = titles
+        mini_dict['href'] = hrefs
+        mini_dict['full_pdf'] = [href.replace('doi.org','www.medrxiv.org/content') + 'v1.full.pdf' for href in hrefs]
         
         return mini_dict
     
-    def access_paper(self, input_dict):
+    def access_archive_listing(self, input_dict):
         
-        abstracts = []
-        
+        abstracts = []        
         for ix,href in enumerate(input_dict['href']):
             res = requests.get(href)
             content = res.content
@@ -50,11 +53,26 @@ class medRxivExtractor:
             print(e)
         
         return abstracts
+
+    def extract_pdf_tables(self, input_pdfs):
+
+        full_tables = []
+        for i in input_pdfs:
+            r = requests.get(i)
+            f = io.BytesIO(r.content)
+            reader = PdfReader(f)
+
+            dfs = tabula.read_pdf('https://www.medrxiv.org/content/10.1101/2023.02.18.23286126v1.full.pdf', pages='all')
+            full_tables.append(dfs)
+
+        return full_tables
             
             
     def __call__(self):
         mini_dict = self.extract_article_text()
-        abstracts = self.access_paper(mini_dict)
+        abstracts = self.access_archive_listing(mini_dict)
+        tables = self.extact_pdf_tables(mini_dict['full_pdf'])
+
             
-        return abstracts
+        return abstracts, tables
         
