@@ -1,3 +1,4 @@
+import pandas as pd
 from bs4 import BeautifulSoup
 import requests
 from pypdf import PdfReader
@@ -15,48 +16,33 @@ class medRxivExtractor:
         soup = BeautifulSoup(content)
         
         
-        titles = []
-        for ix,i in enumerate(soup.find_all('a', {"class": "highwire-cite-linked-title"})):
-            titles.append(i.text)
-            
-        authors = []    
-        for ix,i in enumerate(soup.find_all('span',{"class":'highwire-citation-authors'})):
-            authors.append(i.text)
-                  
-        hrefs = []
-        for ix,i in enumerate(soup.find_all('span', {"class": "highwire-cite-metadata-doi highwire-cite-metadata"})):
-            clean_ref = i.text.partition('doi: ')[2]
-            hrefs.append(clean_ref.strip()) 
-            
-        assert len(hrefs) == len(titles),'Number of Article Titles and Articles Link Do Not Match'
-        
-        mini_dict = {}
-        mini_dict['title'] = titles
-        mini_dict['href'] = hrefs
-        mini_dict['full_pdf'] = [href.replace('doi.org','www.medrxiv.org/content') + 'v1.full.pdf' for href in hrefs]
-        
-        return mini_dict
+        list_dict = []
+        for ix,(i,j,k) in enumerate(zip(soup.find_all('a', {"class": "highwire-cite-linked-title"}),soup.find_all('span',{"class":'highwire-citation-authors'}),soup.find_all('span', {"class": "highwire-cite-metadata-doi highwire-cite-metadata"}))):
+            list_dict.append({'title':i.text,'authors':j.text,'href':k.text.partition('doi: ')[2].strip().replace('doi.org','www.medrxiv.org/content') +'v1','full_pdf':k.text.partition('doi: ')[2].strip().replace('doi.org','www.medrxiv.org/content') + 'v1.full.pdf'})
+
+
+        return pd.DataFrame(list_dict)
     
-    def access_archive_listing(self, input_dict):
+    def access_archive_listing(self, input_df):
         
-        abstracts = []        
-        for ix,href in enumerate(input_dict['href']):
+        abstracts = []  
+        for ix,href in enumerate(input_df['href']):
             res = requests.get(href)
             content = res.content
             soup = BeautifulSoup(content)
-            
             for ix,i in enumerate(soup.find_all('div',{"class":"section abstract"})):
                 abstracts.append(i.text.partition('Abstract')[2])
 
-                    
         abstracts = list(set(abstracts))
         
         try:
-            assert len(abstracts) == len(input_dict['href']),f"Warning: # Abstracts != # Links {len(abstracts),len(input_dict['href'])}"
+            assert len(abstracts) == len(input_df['href']),f"Warning: # Abstracts != # Links {len(abstracts),len(input_df['href'])}"
         except Exception as e:
             print(e)
+            
+        input_df['abstracts'] = abstracts
         
-        return abstracts
+        return input_df
 
     def extract_pdf_tables(self, input_pdfs):
 
@@ -70,10 +56,11 @@ class medRxivExtractor:
             
             
     def __call__(self):
-        mini_dict = self.extract_article_text()
-        abstracts = self.access_archive_listing(mini_dict)
-        tables = self.extact_pdf_tables(mini_dict['full_pdf'])
+        mini_df = self.extract_article_text()
+        full_df = self.access_archive_listing(mini_df)
+        tables = self.extract_pdf_tables(mini_df['full_pdf'])
 
             
-        return abstracts, tables
+        return full_df, tables
+        
         
