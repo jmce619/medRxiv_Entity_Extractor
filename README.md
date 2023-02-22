@@ -27,7 +27,7 @@ Since the nature of the publicates varies in language structure and methodology 
 <p float="left">
   <img src="./img/paper1.png" width="300" />
   <img src="./img/paper2.png" width="300" /> 
-  <img src="./img/paper3png" width="300" />
+  <img src="./img/paper3.png" width="300" />
 </p>
 
 
