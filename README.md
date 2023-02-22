@@ -24,14 +24,12 @@ def extract_article_text(self, subject_matter : str = 'microbiology'):
     res = requests.get('https://www.medrxiv.org/archive')
     content = res.content
     soup = BeautifulSoup(content)
-            
     list_dict = []
     for ix,(i,j,k) in enumerate(zip(soup.find_all('a', {"class": "highwire-cite-linked-title"}),soup.find_all('span',{"class":'highwire-citation-authors'}),soup.find_all('span', {"class": "highwire-cite-metadata-doi highwire-cite-metadata"}))):
         list_dict.append({'title':i.text,'authors':j.text,'href':k.text.partition('doi: ')[2].strip().replace('doi.org','www.medrxiv.org/content') +'v1','full_pdf':k.text.partition('doi: ')[2].strip().replace('doi.org','www.medrxiv.org/content') + 'v1.full.pdf'})
-
-
     return pd.DataFrame(list_dict)
 ```
+
 ### Structure of medRxiv paper summary
 
 <p float="left">
