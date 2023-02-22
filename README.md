@@ -5,6 +5,14 @@ We are developing a system to automate the retrieval of clinical trial results f
 Since the nature of the publicates varies in language structure and methodology presentation (as it is published by different authors, universities, etc..), we are implementing various entity recognition approaches to pick up pertinent data.
 
 
-## General Structure of medRxiv paper
+## Structure of medRxiv archive listings page
+
+<p float="left">
+  <img src="./img/main1.png" width="100" />
+  <img src="./img/main2.png" width="100" /> 
+  <img src="./img/main3.png" width="100" />
+</p>
+
+## Structure of medRxiv paper summary
 
 ![Screenshot](./img/article1.png)
