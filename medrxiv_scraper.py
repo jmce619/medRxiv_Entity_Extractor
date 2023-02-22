@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 from pypdf import PdfReader
 import io
+from tabula import read_pdf
 
 
 class medRxivExtractor:
@@ -18,9 +19,12 @@ class medRxivExtractor:
         for ix,i in enumerate(soup.find_all('a', {"class": "highwire-cite-linked-title"})):
             titles.append(i.text)
             
-        
+        authors = []    
+        for ix,i in enumerate(soup.find_all('span',{"class":'highwire-citation-authors'})):
+            authors.append(i.text)
+                  
         hrefs = []
-        for i in soup.find_all('span', {"class": "highwire-cite-metadata-doi highwire-cite-metadata"}):
+        for ix,i in enumerate(soup.find_all('span', {"class": "highwire-cite-metadata-doi highwire-cite-metadata"})):
             clean_ref = i.text.partition('doi: ')[2]
             hrefs.append(clean_ref.strip()) 
             
@@ -41,9 +45,9 @@ class medRxivExtractor:
             content = res.content
             soup = BeautifulSoup(content)
             
-            for ix,i in enumerate(soup.find_all('meta')):
-                if len(i['content'])>2000:
-                    abstracts.append(i["content"].partition('### Competing Interest Statement')[0])
+            for ix,i in enumerate(soup.find_all('div',{"class":"section abstract"})):
+                abstracts.append(i.text.partition('Abstract')[2])
+
                     
         abstracts = list(set(abstracts))
         
@@ -58,12 +62,9 @@ class medRxivExtractor:
 
         full_tables = []
         for i in input_pdfs:
-            r = requests.get(i)
-            f = io.BytesIO(r.content)
-            reader = PdfReader(f)
-
-            dfs = tabula.read_pdf('https://www.medrxiv.org/content/10.1101/2023.02.18.23286126v1.full.pdf', pages='all')
-            full_tables.append(dfs)
+            dfs = read_pdf(i, pages='all')
+            for table in dfs:
+                full_tables.append(table)
 
         return full_tables
             
