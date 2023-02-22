@@ -34,7 +34,7 @@ We are also going to extract tables from the full paper pdfs via a couple method
         return pd.DataFrame(list_dict)
 ```
 <p float="center">
-    <img src="./img/df12.png" width="300"/>
+    <img src="./img/df12.png" width="700"/>
 </p>
 
 ### Structure of medRxiv paper summary
