@@ -11,7 +11,12 @@ Since the nature of the publicates varies in language structure and methodology 
   <img src="./img/main1.png" width="300" />
   <img src="./img/main2.png" width="300" /> 
   <img src="./img/main3.png" width="300" />
-  <img src="./img/df1.png" width="300" height='300'/>
+</p>
+
+<p float="left">
+  <img src="./img/article5.png" width="300"/>
+  <img src="./img/article6.png" width="300"/>
+  <img src="./img/df12.png" width="300"/>
 </p>
 
 ## Structure of medRxiv paper summary
