@@ -124,10 +124,12 @@ class medRxivExtractor:
     def __call__(self):
         
         mini_df = self.extract_article_text()
-        full_df = self.access_archive_listing(mini_df)
-        tables = self.extract_pdf_tables(full_df)
+        abstract_df = self.access_archive_listing(mini_df)
+        table_df = self.extract_pdf_tables(abstract_df)
+        full_df = self.extract_abstract_entities(table_df)
+
       
-        return full_df, tables
+        return full_df
         
         
         
