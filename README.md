@@ -52,6 +52,32 @@ def extract_article_text(self):
   <img src="./img/article6.png" width="300"/>
 </p>
 
+Now we will loop through our DataFrame href column and extract the abstract text.
+
+```
+    def access_archive_listing(self, input_df):
+        
+        abstracts = []  
+        for ix,href in enumerate(input_df['href']):
+            res = requests.get(href)
+            content = res.content
+            soup = BeautifulSoup(content)
+            for ix,i in enumerate(soup.find_all('div',{"class":"section abstract"})):
+                abstracts.append(i.text.partition('Abstract')[2].replace('\n',''))
+
+        abstracts = list(set(abstracts))
+        
+        try:
+            assert len(abstracts) == len(input_df['href']),f"Warning: # Abstracts != # Links {len(abstracts),len(input_df['href'])}"
+        except Exception as e:
+            print(e)
+            
+        input_df['abstracts'] = abstracts
+        
+        return input_df
+```
+
+
 We will train a custom NER model to pick up on concepts, methods, and study results.
 
 ### NER Annotator Tool
