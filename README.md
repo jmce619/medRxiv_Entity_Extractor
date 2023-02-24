@@ -132,7 +132,7 @@ Now lets test out our model on some test abstracts.
 <img src="./img/ner2.png" width="550"/>
 <p float="center">
   <img src="./img/ner4.png" width="300"/>
-  <img src="./img/ner1.png" width="400"/>
+  <img src="./img/ner1.png" width="450"/>
 </p>
 
 Not terrible - keep in mind this was only trained on ~25 or so abstracts due to time constraints. Given more time - the approach to annotation would be much more careful/discussed as a group.
