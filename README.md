@@ -22,17 +22,24 @@ We are also going to extract tables from the full paper pdfs via a couple method
 We can loop through each html element and create a dataframe to work with.
 
 ```
-    def extract_article_text(self, subject_matter : str = 'microbiology'):
-        
-        res = requests.get('https://www.medrxiv.org/archive')
-        content = res.content
-        soup = BeautifulSoup(content)
-        
-        list_dict = []
-        for ix,(i,j,k) in enumerate(zip(soup.find_all('a', {"class": "highwire-cite-linked-title"}),soup.find_all('span',{"class":'highwire-citation-authors'}),soup.find_all('span', {"class": "highwire-cite-metadata-doi highwire-cite-metadata"}))):
-            list_dict.append({'title':i.text,'authors':j.text,'href':k.text.partition('doi: ')[2].strip().replace('doi.org','www.medrxiv.org/content') +'v1','full_pdf':k.text.partition('doi: ')[2].strip().replace('doi.org','www.medrxiv.org/content') + 'v1.full.pdf'})
+def extract_article_text(self):
 
-        return pd.DataFrame(list_dict)
+    res = requests.get('https://www.medrxiv.org/archive')
+    content = res.content
+    soup = BeautifulSoup(content)
+    
+    a = soup.find_all('a', {"class": "highwire-cite-linked-title"})
+    b = soup.find_all('span',{"class":'highwire-citation-authors'})
+    c = soup.find_all('span', {"class": "highwire-cite-metadata-doi highwire-cite-metadata"})
+    
+    assert len(a) > 0, 'No Articles Found'
+    assert len(a) == len(b) == len(c), 'Mismatched article metadata'
+
+    list_dict = []
+    for ix,(i,j,k) in enumerate(zip(a,b,c)):
+        list_dict.append({'title':i.text,'authors':j.text,'href':k.text.partition('doi: ')[2].strip().replace('doi.org','www.medrxiv.org/content') +'v1','full_pdf':k.text.partition('doi: ')[2].strip().replace('doi.org','www.medrxiv.org/content') + 'v1.full.pdf'})
+
+    return pd.DataFrame(list_dict)
 ```
 <p float="center">
     <img src="./img/df12.png" width="700"/>
