@@ -19,6 +19,7 @@ We are also going to extract tables from the full paper pdfs via a couple method
   <img src="./img/main2.png" width="250" /> 
   <img src="./img/main3.png" width="250" />
 </p>
+We can loop through each html element and create a dataframe to work with.
 
 ```
     def extract_article_text(self, subject_matter : str = 'microbiology'):
@@ -42,6 +43,17 @@ We are also going to extract tables from the full paper pdfs via a couple method
 <p float="left">
   <img src="./img/article5.png" width="300"/>
   <img src="./img/article6.png" width="300"/>
+</p>
+
+We will train a custom NER model to pick up on concepts, methods, and study results.
+
+### NER Annotator Tool
+
+My go to tool is Tecoholic's NER annotator that I use consistently.
+
+<p float="left">
+  <img src="./img/tool2.png" width="300"/>
+  <img src="./img/tool3.png" width="300"/>
 </p>
 
 
