@@ -80,77 +80,126 @@ Now we will loop through our DataFrame href column and extract the abstract text
 
 We will train a custom NER model to pick up on concepts, methods, and study results.
 
-### NER Annotator Tool
+### NER Model Training and Annotation
 
-My go to annotation tool is Tecoholic's NER annotator that I use consistently.
+My go to annotation tool is Tecoholic's NER annotator that I use consistently. We will create and label a few tags in a collection of paper abstracts and then use sPacy to train and fine tune a model.
 
 <p float="left">
   <img src="./img/tool2.png" width="300"/>
   <img src="./img/tool3.png" width="300"/>
 </p>
 
+The tool spits out an annotation json file, which we can read in, manipulate a bit, and then train.
+```
+    f = open('./annotations.json')
+    annot = json.load(f)
+
+
+    list_data = annot['annotations']
+    train_data = []
+    for i in list_data:
+        
+        try:
+            str1 = i[0]
+            ent1 = i[1]
+            train_data.append((str1,ent1))
+            
+        except Exception as e:
+            print('error',e)
+```
+
+Example training code:
+
+```
+    other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
+    with nlp.disable_pipes(*other_pipes):  # only train NER
+        optimizer = nlp.begin_training()
+        for itn in range(n_iter):
+            random.shuffle(train_data)
+            losses = {}
+            for text, annotations in tqdm(train_data):
+                doc = nlp.make_doc(text)
+                example = Example.from_dict(doc, annotations)
+                nlp.update(
+                    [example],  
+                    drop=0.2,  
+                    sgd=optimizer,
+                    losses=losses)
+            print(itn,losses)
+```
+Now lets test out our model on some test abstracts.
+
+<p float="left">
+  <img src="./img/ner2.png" width="300"/>
+  <img src="./img/ner4.png" width="300"/>
+  <img src="./img/ner1.png" width="300"/>
+</p>
+
+Not terrible - keep in mind this was only trained on ~25 or so abstracts due to time constraints. Given more time - the approach to annotation would be much more careful/discussed as a group.
+
+
 Now we will loop through our extract abstracts in our DataFrame, run our NER model over the text, and extract the predicted entities. For now - we will put concepts and results in arrays, and summaries in strings. Ideally we would reconstruct these entities with linking and relationships.
 
 ```
         
-def extract_abstract_entities(self, input_df):
-    
-    abstract_ner_model = spacy.load('./abstract_ner_trainer/model/')
-    
-    concepts_batch = []
-    summary_batch = []
-    method_batch = []
-    conclusion_batch = []
-    confidence_intervals_batch = []
-    results_batch = []
-    
-    for i in input_df['abstract']:
+    def extract_abstract_entities(self, input_df):
         
-        concepts = []
-        summary = ''
-        method = ''
-        conclusion = ''
-        confidence_intervals = []
-        results = []
+        abstract_ner_model = spacy.load('./abstract_ner_trainer/model/')
         
-        doc1 = abstract_ner_model(i)
+        concepts_batch = []
+        summary_batch = []
+        method_batch = []
+        conclusion_batch = []
+        confidence_intervals_batch = []
+        results_batch = []
         
-        #displacy.render(doc1,style = 'ent')
+        for i in input_df['abstract']:
+            
+            concepts = []
+            summary = ''
+            method = ''
+            conclusion = ''
+            confidence_intervals = []
+            results = []
+            
+            doc1 = abstract_ner_model(i)
+            
+            #displacy.render(doc1,style = 'ent')
+            
+            for j in doc1.ents:
+                if j.label_ == 'CONCEPT':
+                    concepts.append(j.text)
+
+                if j.label_ == 'METHOD_SUMM':
+                    method += j.text
+
+                if j.label_ == 'STUDY_SUMM':
+                    summary += j.text
+
+                if j.label_ == 'CONC_SUMM':
+                    conclusion += j.text
+
+                if j.label_ == 'RESULTS':
+                    results.append(j.text)
+
+                if j.label_ == 'CONF_INT':
+                    confidence_intervals.append(j.text)
+                    
+            concepts_batch.append(concepts)
+            summary_batch.append(summary)
+            method_batch.append(method)
+            conclusion_batch.append(conclusion)
+            confidence_intervals_batch.append(confidence_intervals)
+            results_batch.append(results)
+            
+        input_df['concepts'] = concepts_batch
+        input_df['summary'] = summary_batch
+        input_df['method'] = method_batch
+        input_df['conclusion'] = conclusion_batch
+        input_df['results'] = results_batch
+        input_df['confidence_intervals'] = confidence_intervals_batch
         
-        for j in doc1.ents:
-            if j.label_ == 'CONCEPT':
-                concepts.append(j.text)
-
-            if j.label_ == 'METHOD_SUMM':
-                method += j.text
-
-            if j.label_ == 'STUDY_SUMM':
-                summary += j.text
-
-            if j.label_ == 'CONC_SUMM':
-                conclusion += j.text
-
-            if j.label_ == 'RESULTS':
-                results.append(j.text)
-
-            if j.label_ == 'CONF_INT':
-                confidence_intervals.append(j.text)
-                
-        concepts_batch.append(concepts)
-        summary_batch.append(summary)
-        method_batch.append(method)
-        conclusion_batch.append(conclusion)
-        confidence_intervals_batch.append(confidence_intervals)
-        results_batch.append(results)
-        
-    input_df['concepts'] = concepts_batch
-    input_df['summary'] = summary_batch
-    input_df['method'] = method_batch
-    input_df['conclusion'] = conclusion_batch
-    input_df['results'] = results_batch
-    input_df['confidence_intervals'] = confidence_intervals_batch
-    
-    return input_df
+        return input_df
 ```
 
 
@@ -171,3 +220,21 @@ def extract_abstract_entities(self, input_df):
   <img src="./img/table2.png" width="250" /> 
   <img src="./img/table3.png" width="250" />
 </p>
+
+Lets extract tables with tabula's read_pdf() function.
+
+```
+
+    def extract_pdf_tables(self, input_df):
+
+        full_tables = []
+        for i in input_df['full_pdf']:
+            tables = []
+            dfs = read_pdf(i, pages='all')
+            for table in dfs:
+                tables.append(table)
+            full_tables.append(tables)
+        input_df['tables'] = full_tables
+
+        return input_df
+```
