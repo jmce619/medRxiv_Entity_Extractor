@@ -82,12 +82,76 @@ We will train a custom NER model to pick up on concepts, methods, and study resu
 
 ### NER Annotator Tool
 
-My go to tool is Tecoholic's NER annotator that I use consistently.
+My go to annotation tool is Tecoholic's NER annotator that I use consistently.
 
 <p float="left">
   <img src="./img/tool2.png" width="300"/>
   <img src="./img/tool3.png" width="300"/>
 </p>
+
+Now we will loop through our extract abstracts in our DataFrame, run our NER model over the text, and extract the predicted entities. For now - we will put concepts and results in arrays, and summaries in strings. Ideally we would reconstruct these entities with linking and relationships.
+
+```
+        
+def extract_abstract_entities(self, input_df):
+    
+    abstract_ner_model = spacy.load('./abstract_ner_trainer/model/')
+    
+    concepts_batch = []
+    summary_batch = []
+    method_batch = []
+    conclusion_batch = []
+    confidence_intervals_batch = []
+    results_batch = []
+    
+    for i in input_df['abstract']:
+        
+        concepts = []
+        summary = ''
+        method = ''
+        conclusion = ''
+        confidence_intervals = []
+        results = []
+        
+        doc1 = abstract_ner_model(i)
+        
+        #displacy.render(doc1,style = 'ent')
+        
+        for j in doc1.ents:
+            if j.label_ == 'CONCEPT':
+                concepts.append(j.text)
+
+            if j.label_ == 'METHOD_SUMM':
+                method += j.text
+
+            if j.label_ == 'STUDY_SUMM':
+                summary += j.text
+
+            if j.label_ == 'CONC_SUMM':
+                conclusion += j.text
+
+            if j.label_ == 'RESULTS':
+                results.append(j.text)
+
+            if j.label_ == 'CONF_INT':
+                confidence_intervals.append(j.text)
+                
+        concepts_batch.append(concepts)
+        summary_batch.append(summary)
+        method_batch.append(method)
+        conclusion_batch.append(conclusion)
+        confidence_intervals_batch.append(confidence_intervals)
+        results_batch.append(results)
+        
+    input_df['concepts'] = concepts_batch
+    input_df['summary'] = summary_batch
+    input_df['method'] = method_batch
+    input_df['conclusion'] = conclusion_batch
+    input_df['results'] = results_batch
+    input_df['confidence_intervals'] = confidence_intervals_batch
+    
+    return input_df
+```
 
 
 ### Look inside full pdf papers
