@@ -221,7 +221,11 @@ Now we will loop through our extract abstracts in our DataFrame, run our NER mod
   <img src="./img/table3.png" width="250" />
 </p>
 
+As we can see above, papers vary greatly in terms of paper content, file makeup, table formatting, etc.
+
+As a first step - 
 Lets extract tables with tabula's read_pdf() function.
+Since there is no consistent structure to the tables (all from different studies, authors, universities), we will just add all tables as DataFrames within a paper to a list.
 
 ```
 
