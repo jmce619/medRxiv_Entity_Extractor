@@ -82,8 +82,8 @@ We will train a custom NER model to pick up on concepts, methods, and study resu
 
 ### NER Model Training and Annotation
 
-My go to annotation tool is Tecoholic's NER annotator that I use consistently. We will create and label a few tags in a collection of paper abstracts and then use sPacy to train and fine tune a model.
-
+My go to annotation tool is Tecoholic's NER annotator that I use consistently. We will create and label a few tags in a collection of paper abstracts and then use spaCy to train and fine tune a model.
+<img src="./img/tool1.png" width="550"/>
 <p float="left">
   <img src="./img/tool2.png" width="300"/>
   <img src="./img/tool3.png" width="300"/>
