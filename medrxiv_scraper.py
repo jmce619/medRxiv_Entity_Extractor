@@ -1,18 +1,17 @@
 import pandas as pd
 from bs4 import BeautifulSoup
 import requests
-from pypdf import PdfReader
-import io
 from tabula import read_pdf
 
 
 class medRxivExtractor:
-    def __init__(self,data_folder: str = './data/'):
+    def __init__(self,data_folder: str = './data/', arxiv_url: str = 'https://www.medrxiv.org/archive'):
         self.data_folder = data_folder
+        self.arxiv_url = arxiv_url
     
     def extract_article_text(self):
-
-        res = requests.get('https://www.medrxiv.org/archive')
+        
+        res = requests.get(self.arxiv_url)
         content = res.content
         soup = BeautifulSoup(content)
 
@@ -65,6 +64,8 @@ class medRxivExtractor:
     
     def extract_abstract_entities(self,input_df):
     
+        abstract_ner_model = spacy.load('./abstract_ner_trainer/model/')
+        
         concepts_batch = []
         summary_batch = []
         method_batch = []
@@ -127,9 +128,9 @@ class medRxivExtractor:
         abstract_df = self.access_archive_listing(mini_df)
         table_df = self.extract_pdf_tables(abstract_df)
         full_df = self.extract_abstract_entities(table_df)
-
       
         return full_df
+        
         
         
         
